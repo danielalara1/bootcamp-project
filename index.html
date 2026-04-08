@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Gestor de tareas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-white text-black dark:bg-gray-900 dark:text-white transition-colors duration-500">
+    <header>
+        <h1>TaskFlow</h1>
+        <p>Organiza tu día</p>
+    </header>
+
+    <button id="theme-toggle" class="fixed top-4 right-4 p-2 bg-gray-200 dark:bg-gray-700 rounded-full shadow-lg">
+        <span id="theme-icon">🌙</span>
+    </button>
+    <div class="contenedor">
+        <main>
+            <section id="add-task-section">
+                <h2>Nueva tarea</h2>
+                <form id="add-task-form">
+                    <label for="task-input">Pendientes</label>
+                    <div class="form-group">
+                        <input type="text" id="task-input" placeholder="Estudiar para el examen">
+                        <button type="submit" id="add-btn">Añadir</button>
+                    </div>
+                </form>
+            </section>
+
+    <hr class="my-6">
+        <section id="extras-section" class="mb-6">
+            <input type="text" id="search-input" placeholder="Buscar tarea..." class="w-full p-2 border rounded-lg mb-4 text-black">
+            <div class="flex gap-2 mb-4 justify-center">
+                <button onclick="filtrarTareas('todas')" class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">Todas</button>
+                <button onclick="filtrarTareas('pendientes')" class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">Pendientes</button>
+                <button onclick="filtrarTareas('completadas')" class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">Completadas</button>
+            </div>
+            <div class="flex gap-2 justify-center">
+                <button onclick="marcarTodas()" class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200">Marcar todas</button>
+                <button onclick="borrarCompletadas()" class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200">Limpiar completadas</button>
+            </div>
+        </section>
+
+            <section id="list-section">
+                <h2>Tareas</h2>
+                <ul id="task-list">
+                        <button class="delete-btn"></button>
+                    </li>
+                </ul>
+            </section>
+        </main>
+
+        <aside>
+            <h3>Progreso</h3>
+            <div class="stats">
+                <p>Total: <span id="total-count">1</span></p>
+                <p>Completadas: <span id="completed-count">0</span></p>
+            </div>
+            <div class="advice">
+                <small>¡Te acercas al final!</small>
+            </div>
+        </aside>
+    </div> <footer>
+        <p>2026 - Proyecto Bootcamp Nivel 1</p>
+    </footer>
+    <script src="app.js"></script>
+</body>
+</html>

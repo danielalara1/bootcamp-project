@@ -1,0 +1,197 @@
+:root {
+    /* Colores en Modo Claro */
+    --verde-oscuro: #1b2e1b;
+    --verde-medio: #4a6741;
+    --verde-muy-claro: #f0f2ee;
+    --gris-borde: #e0e0e0;
+    --blanco: #ffffff;
+    --rojo-eliminar: #c0392b;
+    --bg-body: #f9f9f7;
+    --bg-card: #ffffff;
+    --input-bg: #ffffff;
+}
+
+/* --- LÓGICA MODO OSCURO (Punto 9) --- */
+/* Cuando el HTML tiene la clase 'dark', estas variables sobrescriben a las de arriba */
+.dark {
+    --verde-oscuro: #f0f2ee; 
+    --verde-medio: #88a47c;
+    --verde-muy-claro: #2d3748;
+    --gris-borde: #4a5568;
+    --blanco: #2d3748;
+    --bg-body: #1a202c; /* Fondo gris casi negro */
+    --bg-card: #2d3748; /* Fondo de tareas gris oscuro */
+    --input-bg: #4a5568;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-body);
+    color: var(--verde-oscuro);
+    transition: background-color 0.3s, color 0.3s; /* Transición suave */
+}
+
+.contenedor {
+    display: flex;
+    max-width: 900px;
+    margin: 40px auto;
+    gap: 30px;
+    padding: 0 20px;
+}
+
+main { flex: 2; }
+aside { flex: 1; }
+
+header {
+    max-width: 900px;
+    margin: 60px auto 20px;
+    padding: 0 20px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    margin: 0;
+}
+
+.form-group {
+    display: flex;
+    gap: 10px; 
+    margin-bottom: 30px;
+}
+
+input[type="text"] {
+    flex: 1; 
+    padding: 12px 15px;
+    border: 1px solid var(--gris-borde);
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    background-color: var(--input-bg);
+    color: var(--verde-oscuro);
+}
+
+input[type="text"]:focus {
+    border-color: var(--verde-medio); 
+}
+
+#add-btn {
+    background-color: #1b2e1b; /* Mantenemos el color oscuro original o usa var(--verde-oscuro) */
+    color: white;
+    padding: 0 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.dark #add-btn {
+    background-color: var(--verde-medio);
+}
+
+#add-btn:hover {
+    background-color: var(--verde-medio);
+}
+
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-card);
+    padding: 15px 20px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--gris-borde);
+    overflow: hidden; 
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.task-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.delete-btn:hover {
+    background-color: var(--rojo-eliminar);
+    color: white;
+}
+
+.tarea-eliminando {
+    animation: encoger 0.4s forwards;
+    pointer-events: none;
+}
+
+@keyframes encoger {
+    0% {
+        opacity: 1;
+        transform: scaleY(1);
+        transform-origin: top;
+        max-height: 100px;
+        margin-bottom: 12px;
+        padding: 15px 20px;
+    }
+    100% {
+        opacity: 0;
+        transform: scaleY(0);
+        transform-origin: top;
+        max-height: 0;
+        margin-bottom: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        border: none;
+    }
+}
+
+.stats {
+    background-color: var(--verde-muy-claro);
+    padding: 20px;
+    border-radius: 10px;
+    transition: background-color 0.3s;
+}
+
+.stats p {
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.stats span {
+    font-weight: bold;
+    color: var(--verde-oscuro);
+}
+
+/* Botón de tema (Tailwind lo posiciona, pero aquí damos estilo extra si quieres) */
+#theme-toggle {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+#theme-toggle:active {
+    transform: scale(0.9);
+}
+
+@media (max-width: 768px) {
+    .contenedor {
+        flex-direction: column; 
+        padding: 10px;
+        gap: 20px;
+    }
+
+    header h1 {
+        font-size: 2rem; 
+        text-align: center;
+    }
+
+    .form-group {
+        flex-direction: column; 
+    }
+
+    #add-btn {
+        width: 100%; 
+        padding: 15px;
+    }
+}
