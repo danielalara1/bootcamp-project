@@ -1,136 +1,107 @@
-const formulario = document.getElementById('add-task-form');
-const input = document.getElementById('task-input');
-const lista = document.getElementById('task-list');
-const buscador = document.getElementById('search-input');
+const taskForm = document.getElementById('add-task-form');
+const taskInput = document.getElementById('task-input');
+const taskList = document.getElementById('task-list');
+const mensajeAviso = document.getElementById('mensaje-aviso');
+const themeToggle = document.getElementById('theme-toggle');
+const themeIcon = document.getElementById('theme-icon');
 
-function cargarTareas() {
-    const datosGuardados = localStorage.getItem('mis-tareas');
-    if (datosGuardados) {
-        const tareas = JSON.parse(datosGuardados);
-        tareas.forEach(tarea => crearElementoTarea(tarea.texto, tarea.completada));
-    }
-    actualizarEstadisticas();
-}
+let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
+let filtroActual = 'todas'; 
 
-function guardarEnLocalStorage() {
-    const tareasParaGuardar = [];
-    document.querySelectorAll('.task-item').forEach(li => {
-        tareasParaGuardar.push({
-            texto: li.querySelector('.task-text').innerText,
-            completada: li.querySelector('input').checked
-        });
-    });
-    localStorage.setItem('mis-tareas', JSON.stringify(tareasParaGuardar));
-}
+const guardarEnStorage = () => {
+    localStorage.setItem('tareas', JSON.stringify(tareas));
+};
 
-function crearElementoTarea(texto, completada = false) {
-    const nuevaTarea = document.createElement('li');
-    nuevaTarea.className = 'task-item';
+const actualizarStats = () => {
+    document.getElementById('total-count').textContent = tareas.length;
+    document.getElementById('completed-count').textContent = tareas.filter(t => t.completada).length;
+};
+
+const renderTareas = () => {
+    taskList.innerHTML = '';
     
-    nuevaTarea.innerHTML = `
-        <div class="task-info">
-            <input type="checkbox" ${completada ? 'checked' : ''} onchange="actualizarEstadisticas(); guardarEnLocalStorage()">
-            <span class="task-text" onclick="editarTarea(this)">${texto}</span>
-        </div>
-        <button class="delete-btn" onclick="eliminarTarea(this)">Eliminar</button>
-    `;
+    const tareasFiltradas = tareas.filter(t => {
+        if (filtroActual === 'pendientes') return !t.completada;
+        if (filtroActual === 'completadas') return t.completada;
+        return true;
+    });
 
-    lista.appendChild(nuevaTarea);
-}
-
-function editarTarea(elemento) {
-    const nuevoTexto = prompt("Edita tu tarea:", elemento.innerText);
-    if (nuevoTexto !== null && nuevoTexto.trim() !== "") {
-        elemento.innerText = nuevoTexto.trim();
-        guardarEnLocalStorage();
+    if (tareasFiltradas.length === 0) {
+        taskList.innerHTML = `<li class="text-center py-10 text-gray-500 italic dark:text-gray-400">No hay tareas que mostrar.</li>`;
+    } else {
+        tareasFiltradas.forEach((tarea, index) => {
+            const originalIndex = tareas.indexOf(tarea); 
+            const li = document.createElement('li');
+            const clasesFondo = tarea.completada 
+                ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' 
+                : 'bg-white border-gray-200 dark:bg-[#222222] dark:border-gray-700';
+            
+            li.className = `flex justify-between items-center p-3 rounded-lg border ${clasesFondo} mb-2 shadow-sm transition-all`;
+            li.innerHTML = `
+                <span class="${tarea.completada ? 'line-through text-gray-400 dark:text-gray-500' : 'text-[#1b2e1b] dark:text-white'} cursor-pointer flex-1" onclick="toggleTarea(${originalIndex})">
+                    ${tarea.texto}
+                </span>
+                <button onclick="eliminarTarea(${originalIndex})" class="ml-4 text-red-500 hover:text-red-700 font-bold">✕</button>
+            `;
+            taskList.appendChild(li);
+        });
     }
-}
+    actualizarStats();
+};
 
-function filtrarTareas(filtro) {
-    const tareas = document.querySelectorAll('.task-item');
-    tareas.forEach(tarea => {
-        const estaCompletada = tarea.querySelector('input').checked;
-        if (filtro === 'todas') tarea.style.display = 'flex';
-        else if (filtro === 'pendientes') tarea.style.display = estaCompletada ? 'none' : 'flex';
-        else if (filtro === 'completadas') tarea.style.display = estaCompletada ? 'flex' : 'none';
-    });
-}
+window.filtrarTareas = (filtro) => {
+    filtroActual = filtro;
+    renderTareas();
+};
 
-buscador.addEventListener('input', (e) => {
-    const texto = e.target.value.toLowerCase();
-    document.querySelectorAll('.task-item').forEach(tarea => {
-        const contenido = tarea.querySelector('.task-text').innerText.toLowerCase();
-        tarea.style.display = contenido.includes(texto) ? 'flex' : 'none';
-    });
+window.marcarTodas = () => {
+    tareas.forEach(t => t.completada = true);
+    guardarEnStorage();
+    renderTareas();
+};
+
+window.borrarCompletadas = () => {
+    tareas = tareas.filter(t => !t.completada);
+    guardarEnStorage();
+    renderTareas();
+};
+
+taskForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const texto = taskInput.value.trim();
+    if (texto === "") {
+        mensajeAviso.classList.remove('hidden');
+        setTimeout(() => mensajeAviso.classList.add('hidden'), 3000);
+        return;
+    }
+    tareas.push({ texto: texto, completada: false });
+    taskInput.value = '';
+    guardarEnStorage();
+    renderTareas();
 });
 
-function marcarTodas() {
-    document.querySelectorAll('.task-item input').forEach(check => {
-        check.checked = true;
-    });
-    actualizarEstadisticas();
-    guardarEnLocalStorage();
-}
+window.toggleTarea = (index) => {
+    tareas[index].completada = !tareas[index].completada;
+    guardarEnStorage();
+    renderTareas();
+};
 
-function borrarCompletadas() {
-    document.querySelectorAll('.task-item').forEach(tarea => {
-        if (tarea.querySelector('input').checked) {
-            tarea.remove();
-        }
-    });
-    actualizarEstadisticas();
-    guardarEnLocalStorage();
-}
+window.eliminarTarea = (index) => {
+    tareas.splice(index, 1);
+    guardarEnStorage();
+    renderTareas();
+};
 
-function actualizarEstadisticas() {
-    const totalContador = document.getElementById('total-count');
-    const completadasContador = document.getElementById('completed-count');
-    const numeroTotal = lista.querySelectorAll('.task-item').length;
-    const numeroCompletadas = lista.querySelectorAll('input[type="checkbox"]:checked').length;
-
-    if (totalContador) totalContador.innerText = numeroTotal;
-    if (completadasContador) completadasContador.innerText = numeroCompletadas;
-}
-
-function eliminarTarea(boton) {
-    const tarea = boton.closest('.task-item');
-    tarea.classList.add('tarea-eliminando');
-    setTimeout(() => {
-        tarea.remove();
-        actualizarEstadisticas();
-        guardarEnLocalStorage();
-    }, 400);
-}
-
-formulario.addEventListener('submit', (e) => {
-    e.preventDefault(); 
-    const texto = input.value.trim();
-    if (texto === "") return;
-    crearElementoTarea(texto);
-    input.value = ""; 
-    actualizarEstadisticas();
-    guardarEnLocalStorage();
+themeToggle.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    const esOscuro = document.documentElement.classList.contains('dark');
+    themeIcon.textContent = esOscuro ? '☀️' : '🌕';
+    localStorage.setItem('theme', esOscuro ? 'dark' : 'light');
 });
 
-cargarTareas();
-
-
-const btnOscuro = document.getElementById('theme-toggle');
-const icono = document.getElementById('theme-icon');
-
-if (localStorage.getItem('modo-oscuro') === 'true') {
+if (localStorage.getItem('theme') === 'dark') {
     document.documentElement.classList.add('dark');
-    if(icono) icono.innerText = '☀️';
+    themeIcon.textContent = '☀️';
 }
 
-if (btnOscuro) {
-    btnOscuro.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        
-        const esOscuro = document.documentElement.classList.contains('dark');
-        
-        localStorage.setItem('modo-oscuro', esOscuro);
-        
-        icono.innerText = esOscuro ? '☀️' : '🌙';
-    });
-}
+renderTareas();

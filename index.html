@@ -5,66 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskFlow - Gestor de tareas</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class', 
+        }
+    </script>
 </head>
-<body class="bg-white text-black dark:bg-gray-900 dark:text-white transition-colors duration-500">
-    <header>
-        <h1>TaskFlow</h1>
-        <p>Organiza tu día</p>
+<body class="bg-[#f9f9f7] text-[#1b2e1b] dark:bg-black dark:text-white transition-colors duration-500 min-h-screen">
+    
+    <header class="text-center py-6">
+        <h1 class="text-4xl font-bold">TaskFlow</h1>
+        <p class="opacity-80 text-sm italic">Organiza tu día</p>
     </header>
 
-    <button id="theme-toggle" class="fixed top-4 right-4 p-2 bg-gray-200 dark:bg-gray-700 rounded-full shadow-lg">
-        <span id="theme-icon">🌙</span>
+    <button id="theme-toggle" aria-label="Cambiar modo de color" class="fixed top-4 right-4 p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg transition-all hover:scale-110 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-green-600">
+        <span id="theme-icon">🌕</span>
     </button>
-    <div class="contenedor">
+
+    <div class="max-w-2xl mx-auto p-6 bg-white dark:bg-[#1a1a1a] shadow-xl rounded-2xl border border-gray-100 dark:border-gray-800 mt-10">
         <main>
-            <section id="add-task-section">
-                <h2>Nueva tarea</h2>
-                <form id="add-task-form">
-                    <label for="task-input">Pendientes</label>
-                    <div class="form-group">
-                        <input type="text" id="task-input" placeholder="Estudiar para el examen">
-                        <button type="submit" id="add-btn">Añadir</button>
-                    </div>
+            <section id="add-task-section" class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">Nueva tarea</h2> 
+                <div id="mensaje-aviso" class="hidden mb-4 p-3 rounded-lg text-sm bg-red-100 text-red-700 border border-red-400">
+                    Por favor, escribe la tarea antes de añadir.
+                </div>
+                <form id="add-task-form" class="flex gap-2">
+                    <input type="text" id="task-input" placeholder="Ej. Comprar pan..." 
+                           class="flex-1 p-3 border rounded-lg bg-gray-50 dark:bg-[#222222] dark:border-gray-700 outline-none focus:ring-2 focus:ring-green-500">
+                    <button type="submit" class="bg-[#1b2e1b] dark:bg-purple-600 text-white px-6 py-2 rounded-lg hover:opacity-90 transition">Añadir</button>
                 </form>
             </section>
 
-    <hr class="my-6">
-        <section id="extras-section" class="mb-6">
-            <input type="text" id="search-input" placeholder="Buscar tarea..." class="w-full p-2 border rounded-lg mb-4 text-black">
-            <div class="flex gap-2 mb-4 justify-center">
-                <button onclick="filtrarTareas('todas')" class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">Todas</button>
-                <button onclick="filtrarTareas('pendientes')" class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">Pendientes</button>
-                <button onclick="filtrarTareas('completadas')" class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">Completadas</button>
-            </div>
-            <div class="flex gap-2 justify-center">
-                <button onclick="marcarTodas()" class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200">Marcar todas</button>
-                <button onclick="borrarCompletadas()" class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200">Limpiar completadas</button>
-            </div>
-        </section>
+            <section id="extras-section" class="mb-6 space-y-4">
+                <div class="flex gap-2 justify-center">
+                    <button onclick="filtrarTareas('todas')" class="px-3 py-1 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">Todas</button>
+                    <button onclick="filtrarTareas('pendientes')" class="px-3 py-1 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">Pendientes</button>
+                    <button onclick="filtrarTareas('completadas')" class="px-3 py-1 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">Completadas</button>
+                </div>
+                <div class="flex gap-2 justify-center">
+                    <button onclick="marcarTodas()" class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded hover:bg-green-200 transition">Marcar todas</button>
+                    <button onclick="borrarCompletadas()" class="text-xs bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200 transition">Limpiar completadas</button>
+                </div>
+            </section>
+
+            <hr class="my-6 border-gray-200 dark:border-gray-700">
 
             <section id="list-section">
-                <h2>Tareas</h2>
-                <ul id="task-list">
-                        <button class="delete-btn"></button>
-                    </li>
-                </ul>
+                <h2 class="text-xl font-semibold mb-4">Mis Tareas</h2>
+                <ul id="task-list" class="space-y-3"></ul>
             </section>
         </main>
 
-        <aside>
-            <h3>Progreso</h3>
-            <div class="stats">
-                <p>Total: <span id="total-count">1</span></p>
-                <p>Completadas: <span id="completed-count">0</span></p>
-            </div>
-            <div class="advice">
-                <small>¡Te acercas al final!</small>
+        <aside class="mt-10 p-5 bg-[#f0f2ee] dark:bg-[#2d3748] rounded-xl transition-colors">
+            <h3 class="font-bold mb-3 text-lg">Progreso</h3>
+            <div class="space-y-2">
+                <p class="flex justify-between text-sm">Total: <span id="total-count" class="font-bold text-lg">0</span></p>
+                <p class="flex justify-between text-sm">Completadas: <span id="completed-count" class="font-bold text-lg text-green-600 dark:text-green-400">0</span></p>
             </div>
         </aside>
-    </div> <footer>
+    </div>
+
+    <footer class="text-center py-8 text-gray-400 text-sm">
         <p>2026 - Proyecto Bootcamp Nivel 1</p>
     </footer>
+
     <script src="app.js"></script>
 </body>
 </html>

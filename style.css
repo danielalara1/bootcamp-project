@@ -1,5 +1,5 @@
 :root {
-    /* Colores en Modo Claro */
+
     --verde-oscuro: #1b2e1b;
     --verde-medio: #4a6741;
     --verde-muy-claro: #f0f2ee;
@@ -11,25 +11,24 @@
     --input-bg: #ffffff;
 }
 
-/* --- LÓGICA MODO OSCURO (Punto 9) --- */
-/* Cuando el HTML tiene la clase 'dark', estas variables sobrescriben a las de arriba */
 .dark {
-    --verde-oscuro: #f0f2ee; 
-    --verde-medio: #88a47c;
-    --verde-muy-claro: #2d3748;
-    --gris-borde: #4a5568;
-    --blanco: #2d3748;
-    --bg-body: #1a202c; /* Fondo gris casi negro */
-    --bg-card: #2d3748; /* Fondo de tareas gris oscuro */
-    --input-bg: #4a5568;
+    --bg-body: #000000;
+    --bg-card: #ff0000;
+    --letra1: #ffffff;
+    --letra2: #000; 
+    --verde-medio: #9e27c2;
+    --verde-muy-claro: #7eeb96;
+    --gris-borde: #6b6b6b; 
+    --input-bg:#ffffff;
+
 }
 
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--bg-body);
-    color: var(--verde-oscuro);
-    transition: background-color 0.3s, color 0.3s; /* Transición suave */
+    color: var(--letra1);
+    transition: background-color 0.3s, color 0.3s
 }
 
 .contenedor {
@@ -69,7 +68,7 @@ input[type="text"] {
     font-size: 1rem;
     outline: none;
     background-color: var(--input-bg);
-    color: var(--verde-oscuro);
+    color: var(--letra2);
 }
 
 input[type="text"]:focus {
@@ -77,8 +76,7 @@ input[type="text"]:focus {
 }
 
 #add-btn {
-    background-color: #1b2e1b; /* Mantenemos el color oscuro original o usa var(--verde-oscuro) */
-    color: white;
+    background-color: #1b2e1b; 
     padding: 0 25px;
     border: none;
     border-radius: 8px;
@@ -161,10 +159,9 @@ input[type="text"]:focus {
 
 .stats span {
     font-weight: bold;
-    color: var(--verde-oscuro);
+    color: var(--letra2);
 }
 
-/* Botón de tema (Tailwind lo posiciona, pero aquí damos estilo extra si quieres) */
 #theme-toggle {
     cursor: pointer;
     transition: transform 0.2s;
