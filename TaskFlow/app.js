@@ -21,7 +21,7 @@ const actualizarStats = () => {
  * Renderiza las tareas en la lista según el filtro actual.
  */
 const renderTareas = () => {
-    taskList.innerHTML = '';
+    taskList.textContent = '';
     
     const tareasFiltradas = tareas.filter(t => {
         if (filtroActual === 'pendientes') return !t.completada;
@@ -30,7 +30,10 @@ const renderTareas = () => {
     });
 
     if (tareasFiltradas.length === 0) {
-        taskList.innerHTML = `<li class="text-center py-10 text-gray-500 italic dark:text-gray-400">No hay tareas que mostrar.</li>`;
+        const liVacio = document.createElement('li');
+        liVacio.className = 'text-center py-10 text-gray-500 italic dark:text-gray-400';
+        liVacio.textContent = 'No hay tareas que mostrar.';
+        taskList.appendChild(liVacio);
     } else {
         tareasFiltradas.forEach((tarea) => {
             const indiceTarea = tareas.indexOf(tarea); 
@@ -40,19 +43,22 @@ const renderTareas = () => {
                 : 'bg-white border-gray-200 dark:bg-[#222222] dark:border-gray-700';
             
             li.className = `flex justify-between items-center p-3 rounded-lg border ${clasesFondo} mb-2 shadow-sm transition-all`;
-            li.innerHTML = `
-                <span class="${tarea.completada ? 'line-through text-gray-400 dark:text-gray-500' : 'text-[#1b2e1b] dark:text-white'} cursor-pointer flex-1">
-                    ${tarea.texto}
-                </span>
-                <button class="delete-btn ml-4 text-red-500 hover:text-red-700 font-bold">✕</button>
-            `;
+            const span = document.createElement('span');
+            span.className = `${tarea.completada ? 'line-through text-gray-400 dark:text-gray-500' : 'text-[#1b2e1b] dark:text-white'} cursor-pointer flex-1`;
+            span.textContent = tarea.texto;
+
+            const btnEliminar = document.createElement('button');
+            btnEliminar.className = 'delete-btn ml-4 text-red-500 hover:text-red-700 font-bold';
+            btnEliminar.textContent = '✕';
+            btnEliminar.type = 'button';
+
+            li.appendChild(span);
+            li.appendChild(btnEliminar);
             
             // Evento para togglear tarea
-            const span = li.querySelector('span');
-            span.addEventListener('click', () => toggleTarea(indiceTarea));
+            span.addEventListener('click', () => toggleTaskCompletion(indiceTarea));
             
             // Evento para eliminar tarea
-            const btnEliminar = li.querySelector('.delete-btn');
             btnEliminar.addEventListener('click', () => eliminarTarea(indiceTarea));
             
             taskList.appendChild(li);
@@ -80,27 +86,42 @@ window.borrarCompletadas = () => {
 
 /**
  * Agrega una nueva tarea a la lista.
- * @param {string} texto - El texto de la tarea a agregar.
+ * @param {string} textoTarea - El texto de la tarea a agregar.
  */
-const agregarTarea = (texto) => {
-    tareas.push({ texto: texto, completada: false });
+const agregarTarea = (textoTarea) => {
+    const nuevaTarea = crearTarea(textoTarea);
+    tareas.push(nuevaTarea);
     taskInput.value = '';
     guardarEnStorage();
     renderTareas();
 };
 
-taskForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const texto = taskInput.value.trim();
-    
-    if (!validarTextoTarea(texto)) {
-        mensajeAviso.classList.remove('hidden');
-        setTimeout(() => mensajeAviso.classList.add('hidden'), 3000);
+const crearTarea = (textoTarea) => {
+    return { texto: textoTarea, completada: false };
+};
+
+const esTextoTareaValido = (textoTarea) => {
+    return validarTextoTarea(textoTarea);
+};
+
+const mostrarAvisoValidacion = () => {
+    mensajeAviso.classList.remove('hidden');
+    setTimeout(() => mensajeAviso.classList.add('hidden'), 3000);
+};
+
+const manejarEnvioFormularioTarea = (eventoSubmit) => {
+    eventoSubmit.preventDefault();
+    const textoTarea = taskInput.value.trim();
+
+    if (!esTextoTareaValido(textoTarea)) {
+        mostrarAvisoValidacion();
         return;
     }
-    
-    agregarTarea(texto);
-});
+
+    agregarTarea(textoTarea);
+};
+
+taskForm.addEventListener('submit', manejarEnvioFormularioTarea);
 
 /**
  * Alterna el estado de completitud de una tarea en la lista.
