@@ -1,5 +1,7 @@
 const taskForm = document.getElementById('add-task-form');
 const taskInput = document.getElementById('task-input');
+const priorityInput = document.getElementById('priority-input'); 
+const searchInput = document.getElementById('search-input');
 const taskList = document.getElementById('task-list');
 const mensajeAviso = document.getElementById('mensaje-aviso');
 const themeToggle = document.getElementById('theme-toggle');
@@ -13,20 +15,31 @@ const guardarEnStorage = () => {
 };
 
 const actualizarStats = () => {
-    document.getElementById('total-count').textContent = tareas.length;
-    document.getElementById('completed-count').textContent = tareas.filter(t => t.completada).length;
+    const total = tareas.length;
+    const completadas = tareas.filter(t => t.completada).length;
+    
+    document.getElementById('total-count').textContent = total;
+    document.getElementById('completed-count').textContent = completadas;
+
+    const porcentaje = total === 0 ? 0 : Math.round((completadas / total) * 100);
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-percentage');
+    
+    if(progressBar && progressText) {
+        progressBar.style.width = `${porcentaje}%`;
+        progressText.textContent = porcentaje;
+    }
 };
 
-/**
- * Renderiza las tareas en la lista según el filtro actual.
- */
 const renderTareas = () => {
     taskList.textContent = '';
     
     const tareasFiltradas = tareas.filter(t => {
-        if (filtroActual === 'pendientes') return !t.completada;
-        if (filtroActual === 'completadas') return t.completada;
-        return true;
+        const coincideBusqueda = t.texto.toLowerCase().includes(searchInput.value.toLowerCase());
+        let coincideFiltro = true;
+        if (filtroActual === 'pendientes') coincideFiltro = !t.completada;
+        if (filtroActual === 'completadas') coincideFiltro = t.completada;
+        return coincideBusqueda && coincideFiltro;
     });
 
     if (tareasFiltradas.length === 0) {
@@ -36,35 +49,94 @@ const renderTareas = () => {
         taskList.appendChild(liVacio);
     } else {
         tareasFiltradas.forEach((tarea) => {
-            const indiceTarea = tareas.indexOf(tarea); 
+            const indiceOriginal = tareas.indexOf(tarea); 
             const li = document.createElement('li');
+            
+            const borderPriority = {
+                'alta': 'border-l-4 border-l-red-500',
+                'media': 'border-l-4 border-l-yellow-500',
+                'baja': 'border-l-4 border-l-green-500'
+            };
+
             const clasesFondo = tarea.completada 
                 ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' 
-                : 'bg-white border-gray-200 dark:bg-[#222222] dark:border-gray-700';
+                : `bg-white border-gray-200 dark:bg-[#222222] dark:border-gray-700 ${borderPriority[tarea.prioridad || 'baja']}`;
             
             li.className = `flex justify-between items-center p-3 rounded-lg border ${clasesFondo} mb-2 shadow-sm transition-all`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'flex flex-col flex-1 cursor-pointer';
+
             const span = document.createElement('span');
-            span.className = `${tarea.completada ? 'line-through text-gray-400 dark:text-gray-500' : 'text-[#1b2e1b] dark:text-white'} cursor-pointer flex-1`;
+            span.className = `${tarea.completada ? 'line-through text-gray-400 dark:text-gray-500' : 'text-[#1b2e1b] dark:text-white'} font-medium`;
             span.textContent = tarea.texto;
 
-            const btnEliminar = document.createElement('button');
-            btnEliminar.className = 'delete-btn ml-4 text-red-500 hover:text-red-700 font-bold';
-            btnEliminar.textContent = '✕';
-            btnEliminar.type = 'button';
+            const smallFecha = document.createElement('small');
+            smallFecha.className = 'text-[10px] opacity-50 dark:text-gray-400';
+            smallFecha.textContent = `📅 ${tarea.fecha || 'Reciente'}`;
 
-            li.appendChild(span);
+            contentDiv.appendChild(span);
+            contentDiv.appendChild(smallFecha);
+
+            const btnEditar = document.createElement('button');
+            btnEditar.className = 'ml-2 text-blue-500 hover:text-blue-700 text-sm p-1';
+            btnEditar.textContent = '✏️';
+
+            const btnEliminar = document.createElement('button');
+            btnEliminar.className = 'delete-btn ml-4 text-red-500 hover:text-red-700 font-bold p-1';
+            btnEliminar.textContent = '✕';
+
+            li.appendChild(contentDiv);
+            li.appendChild(btnEditar);
             li.appendChild(btnEliminar);
             
-            // Evento para togglear tarea
-            span.addEventListener('click', () => toggleTaskCompletion(indiceTarea));
+            contentDiv.addEventListener('click', () => toggleTaskCompletion(indiceOriginal));
+            btnEliminar.addEventListener('click', () => eliminarTarea(indiceOriginal));
             
-            // Evento para eliminar tarea
-            btnEliminar.addEventListener('click', () => eliminarTarea(indiceTarea));
+            btnEditar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const nuevoTexto = prompt('Edita tu tarea:', tarea.texto);
+                if (nuevoTexto !== null && nuevoTexto.trim() !== "") {
+                    tareas[indiceOriginal].texto = nuevoTexto.trim();
+                    guardarEnStorage();
+                    renderTareas();
+                }
+            });
             
             taskList.appendChild(li);
         });
     }
     actualizarStats();
+};
+
+const agregarTarea = (textoTarea) => {
+    const prioridad = priorityInput.value;
+    const ahora = new Date();
+    const fechaActual = ahora.toLocaleDateString() + " " + ahora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+    const nuevaTarea = { 
+        texto: textoTarea, 
+        completada: false, 
+        prioridad: prioridad,
+        fecha: fechaActual 
+    };
+    
+    tareas.push(nuevaTarea);
+    taskInput.value = '';
+    guardarEnStorage();
+    renderTareas();
+};
+
+window.toggleTaskCompletion = (index) => {
+    tareas[index].completada = !tareas[index].completada;
+    guardarEnStorage();
+    renderTareas();
+};
+
+window.eliminarTarea = (index) => {
+    tareas.splice(index, 1);
+    guardarEnStorage();
+    renderTareas();
 };
 
 window.filtrarTareas = (filtro) => {
@@ -84,24 +156,8 @@ window.borrarCompletadas = () => {
     renderTareas();
 };
 
-/**
- * Agrega una nueva tarea a la lista.
- * @param {string} textoTarea - El texto de la tarea a agregar.
- */
-const agregarTarea = (textoTarea) => {
-    const nuevaTarea = crearTarea(textoTarea);
-    tareas.push(nuevaTarea);
-    taskInput.value = '';
-    guardarEnStorage();
-    renderTareas();
-};
-
-const crearTarea = (textoTarea) => {
-    return { texto: textoTarea, completada: false };
-};
-
 const esTextoTareaValido = (textoTarea) => {
-    return validarTextoTarea(textoTarea);
+    return typeof validarTextoTarea === 'function' ? validarTextoTarea(textoTarea) : textoTarea !== "";
 };
 
 const mostrarAvisoValidacion = () => {
@@ -109,40 +165,17 @@ const mostrarAvisoValidacion = () => {
     setTimeout(() => mensajeAviso.classList.add('hidden'), 3000);
 };
 
-const manejarEnvioFormularioTarea = (eventoSubmit) => {
-    eventoSubmit.preventDefault();
-    const textoTarea = taskInput.value.trim();
-
-    if (!esTextoTareaValido(textoTarea)) {
+taskForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const texto = taskInput.value.trim();
+    if (!esTextoTareaValido(texto)) {
         mostrarAvisoValidacion();
         return;
     }
+    agregarTarea(texto);
+});
 
-    agregarTarea(textoTarea);
-};
-
-taskForm.addEventListener('submit', manejarEnvioFormularioTarea);
-
-/**
- * Alterna el estado de completitud de una tarea en la lista.
- * @param {number} index - El índice de la tarea en el array de tareas.
- * @returns {void}
- */
-window.toggleTaskCompletion = (index) => {
-    try {
-        tareas[index].completada = !tareas[index].completada;
-        guardarEnStorage();
-        renderTareas();
-    } catch (error) {
-        console.error('Error al guardar la tarea en localStorage:', error);
-    }
-};
-
-window.eliminarTarea = (index) => {
-    tareas.splice(index, 1);
-    guardarEnStorage();
-    renderTareas();
-};
+searchInput.addEventListener('input', renderTareas);
 
 themeToggle.addEventListener('click', () => {
     document.documentElement.classList.toggle('dark');

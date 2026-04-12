@@ -10,8 +10,6 @@
             darkMode: 'class', 
         }
     </script>
-    <script src="comprobaciones/validaciones.js"></script>
-    <script src="app.js"></script>
 </head>
 <body class="bg-[#f9f9f7] text-[#1b2e1b] dark:bg-black dark:text-white transition-colors duration-500 min-h-screen">
     
@@ -31,14 +29,23 @@
                 <div id="mensaje-aviso" class="hidden mb-4 p-3 rounded-lg text-sm bg-red-100 text-red-700 border border-red-400">
                     Por favor, escribe la tarea antes de añadir.
                 </div>
-                <form id="add-task-form" class="flex gap-2">
+                <form id="add-task-form" class="flex flex-wrap gap-2">
                     <input type="text" id="task-input" placeholder="Ej. Comprar pan..." 
-                           class="flex-1 p-3 border rounded-lg bg-gray-50 dark:bg-[#222222] dark:border-gray-700 outline-none focus:ring-2 focus:ring-green-500">
+                    class="flex-1 p-3 border rounded-lg bg-gray-50 dark:bg-[#222222] dark:border-gray-700 outline-none focus:ring-2 focus:ring-green-500">
+                   <select id="priority-input" class="p-3 border rounded-lg bg-gray-50 dark:bg-[#222222] dark:border-gray-700 outline-none">
+                        <option value="baja">Baja 🟢</option>
+                        <option value="media">Media 🟡</option>
+                        <option value="alta">Alta 🔴</option>
+                    </select>
                     <button type="submit" class="bg-[#1b2e1b] dark:bg-purple-600 text-white px-6 py-2 rounded-lg hover:opacity-90 transition">Añadir</button>
-                </form>
+            </form>
             </section>
 
             <section id="extras-section" class="mb-6 space-y-4">
+                <div class="mb-4">
+                     <input type="text" id="search-input" placeholder="Buscar tarea..." 
+                    class="w-full p-2 border rounded-lg bg-gray-50 dark:bg-[#222222] dark:border-gray-700 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                </div>
                 <div class="flex gap-2 justify-center">
                     <button onclick="filtrarTareas('todas')" class="px-3 py-1 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">Todas</button>
                     <button onclick="filtrarTareas('pendientes')" class="px-3 py-1 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">Pendientes</button>
@@ -63,6 +70,10 @@
             <div class="space-y-2">
                 <p class="flex justify-between text-sm">Total: <span id="total-count" class="font-bold text-lg">0</span></p>
                 <p class="flex justify-between text-sm">Completadas: <span id="completed-count" class="font-bold text-lg text-green-600 dark:text-green-400">0</span></p>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mt-4">
+                <div id="progress-bar" class="bg-green-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <p class="text-xs text-right mt-1 opacity-70"><span id="progress-percentage">0</span>% completado</p>
             </div>
         </aside>
     </div>
