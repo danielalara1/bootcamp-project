@@ -7,11 +7,30 @@ const mensajeAviso = document.getElementById('mensaje-aviso');
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
 
-let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
-let filtroActual = 'todas'; 
+let tareas = []; 
+const cargarDatos = async () => {
+    try {
+        const res = await fetch('http://localhost:3000/api/v1/tasks');
+        tareas = await res.json();
+        renderTareas();
+    } catch (error) {
+        console.error("Error al cargar:", error);
+    }
+};
+cargarDatos();
 
-const guardarEnStorage = () => {
-    localStorage.setItem('tareas', JSON.stringify(tareas));
+let filtroActual = 'todas';
+
+const guardarEnStorage = async () => {
+    try {
+        await fetch('http://localhost:3000/api/v1/tasks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(tareas) 
+        });
+    } catch (error) {
+        console.error("Error al guardar:", error);
+    }
 };
 
 const actualizarStats = () => {
@@ -190,3 +209,5 @@ if (localStorage.getItem('theme') === 'dark') {
 }
 
 renderTareas();
+
+window.addEventListener('DOMContentLoaded', cargarDatos);

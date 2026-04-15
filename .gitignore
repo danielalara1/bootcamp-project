@@ -1,0 +1,4 @@
+TaskFlow/server/
+
+.env
+node_modules/
